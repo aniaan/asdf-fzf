@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# 加载基础配置
+source "$(dirname "$0")/utils.sh"
+
+# 获取标签
+tags_path="$(get_github_api_tags_url)"
+
+response=$(curl -s "$tags_path")
+
+# 提取版本号并格式化
+versions=$(echo "$response" | jq -r '.[].name' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tr '\n' ' ' | sed 's/ $//')
+
+if [ -z "$versions" ]; then
+    echo "Error: No versions found or invalid response format" >&2
+    exit 1
+fi
+
+echo "$versions"
